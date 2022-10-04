@@ -1,10 +1,9 @@
 use std::{str, process::exit};
-use rust_decimal::Decimal;
-use rust_decimal::prelude::*;
-use bank::PioBank;
+use rust_decimal::{Decimal, prelude::*};
+use bank::{Bank, PioBank};
 
-use crate::bank::{Bank};
 mod bank;
+mod database;
 
 
 static BANK_NAME: &str = "[************* PioBank *************]";

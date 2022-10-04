@@ -1,9 +1,9 @@
 use self::account::Account;
-use self::database::Db;
+use crate::database::Db;
 use rust_decimal::Decimal;
 
 pub mod account;
-pub mod database;
+
 
 pub trait Bank {
     fn new() -> Self;
@@ -50,10 +50,14 @@ impl Bank for PioBank {
     }
 
     fn set_active_account(&mut self, name: &String) -> bool {
-        let account: Account = Account::new(name.to_string());
+        let account: Account;
+        match self.db_.get_account(name.clone()) {
+            Some(acc) => { account = acc },
+            None => { return false; }
+        }
 
         if !self.accounts_.contains(&account) {
-            return false;
+            self.accounts_.push(account.clone());
         }
         
         let index = self.accounts_.iter().position(|e: &Account| e == &account).unwrap();
@@ -110,9 +114,7 @@ impl Bank for PioBank {
         
         let target_account_index = self.accounts_.iter().position(|e: &Account| e == &target_account_pattern).unwrap();
 
-        let mut result: bool = false;
-
-        result = self.accounts_[self.active_account_index_.unwrap()].subtract_money(money);
+        let mut result: bool = self.accounts_[self.active_account_index_.unwrap()].subtract_money(money);
         if !result {
             eprintln!("You don't have enough money on your account! Please inupt different value.");
             return result;

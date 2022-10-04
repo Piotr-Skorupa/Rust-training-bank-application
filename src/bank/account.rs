@@ -3,7 +3,7 @@ use std::ptr::eq;
 use rust_decimal::{Decimal, prelude::FromPrimitive};
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Account {
     name_: String,
     money_: Decimal
