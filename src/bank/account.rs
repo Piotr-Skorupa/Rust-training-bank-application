@@ -14,6 +14,10 @@ impl Account {
         Account { name_: name, money_: Decimal::new(00, 1) }
     }
 
+    pub fn name(&self) -> String {
+        self.name_.clone()
+    }
+
     pub fn get_money(&self) -> Decimal {
         self.money_
     }

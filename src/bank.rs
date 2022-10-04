@@ -1,7 +1,9 @@
 use self::account::Account;
+use self::database::Db;
 use rust_decimal::Decimal;
 
 pub mod account;
+pub mod database;
 
 pub trait Bank {
     fn new() -> Self;
@@ -16,12 +18,15 @@ pub trait Bank {
 
 pub struct PioBank {
     accounts_: Vec<Account>,
-    active_account_index_: Option<usize>
+    active_account_index_: Option<usize>,
+    db_: Db
 }
 
 impl Bank for PioBank {
     fn new() -> PioBank {
-        PioBank { accounts_: Vec::<Account>::new(), active_account_index_: None }
+        let mut self_ = PioBank { accounts_: Vec::<Account>::new(), active_account_index_: None, db_: Db::new() };
+        self_.db_.connect();
+        return self_;
     }
 
     fn create_account(&mut self,  name: &String) -> bool {
@@ -30,6 +35,11 @@ impl Bank for PioBank {
         if self.accounts_.contains(&account) {
             return false;
         }
+
+        if !self.db_.create_account(name.clone()) {
+            return false;
+        }
+
         println!("Account {} has been created!", name);
         self.accounts_.push(account);
         return true;
@@ -66,7 +76,9 @@ impl Bank for PioBank {
             eprintln!("No active account has been choosen!");
         }
 
-        self.accounts_[self.active_account_index_.unwrap()].add_money(money);  
+        self.accounts_[self.active_account_index_.unwrap()].add_money(money);
+        self.db_.save_saldo(self.accounts_[self.active_account_index_.unwrap()].name(),
+            self.accounts_[self.active_account_index_.unwrap()].get_money());
     }
 
     fn withdraw(&mut self, money: Decimal) -> bool {
@@ -108,7 +120,8 @@ impl Bank for PioBank {
 
         result = self.accounts_[target_account_index].add_money(money);
         if !result {
-            eprintln!("Target account rejected your transfer!");
+            eprintln!("Target account rejected your transfer! Money is returning to you");
+            self.accounts_[self.active_account_index_.unwrap()].add_money(money);
             return result;
         }
 
