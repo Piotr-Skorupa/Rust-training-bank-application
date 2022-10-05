@@ -16,15 +16,19 @@ fn abort_exit(message: &str) {
     exit(EXIT_CODE_ABORT);
 }
 
+fn print_internal_menu() {
+    println!("1 - Check saldo");
+    println!("2 - Deposit");
+    println!("3 - Withdraw");
+    println!("4 - Transfer");
+    println!("q - back");
+}
+
 fn internal_loop(pio_bank: &mut PioBank) {
     let mut line: String = String::new();
     while line != String::from(EXIT_CHOICE) {
         line.clear();
-        println!("1 - Check saldo");
-        println!("2 - Deposit");
-        println!("3 - Withdraw");
-        println!("4 - Transfer");
-        println!("q - back");
+        print_internal_menu();
 
         if std::io::stdin().read_line(&mut line).is_err() {
             abort_exit("System input error!");
@@ -80,7 +84,6 @@ fn main() {
         line.clear();
         println!("1 - Create account");
         println!("2 - Choose account");
-        println!("3 - Show accounts");
         println!("q - quit");
         
         match std::io::stdin().read_line(&mut line) {
@@ -126,9 +129,7 @@ fn main() {
                             abort_exit("System input error!");
                         }
                     }
-                } else if line == String::from("3") {
-                    pio_bank.print_account_names();
-                }  else if line == String::from(EXIT_CHOICE) {
+                } else if line == String::from(EXIT_CHOICE) {
                     continue;
                 } 
                 else {
