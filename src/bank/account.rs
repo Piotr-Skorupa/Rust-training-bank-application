@@ -22,6 +22,10 @@ impl Account {
         self.money_
     }
 
+    pub fn set_money(&mut self, money: Decimal) {
+        self.money_ = money;
+    }
+
     pub fn add_money(&mut self, money: Decimal) -> bool {
         if money > Decimal::from_i32(0).unwrap() {
             self.money_ += money;            

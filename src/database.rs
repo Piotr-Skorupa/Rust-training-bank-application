@@ -50,6 +50,26 @@ impl Db {
         }
     }
 
+    pub fn read_saldo(&mut self, name: String) -> Option<Decimal> {
+        let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
+
+        let statement: String = "SELECT saldo FROM accounts".to_owned() + " WHERE name='" + &name + "';";
+
+        let matcher = match connection.prepare(statement, ) {
+            Ok(mut result) => {
+                let mut saldo: String = "".to_string();
+                while let State::Row = result.next().unwrap() {
+                    saldo = result.read::<String>(0).unwrap();
+                }
+                match Decimal::from_str(saldo.as_str()) {
+                    Ok(_saldo) => { Some(_saldo) },
+                    Err(_er) => { None }
+                }
+             },
+            Err(_er) => { eprintln!("SQL error: {}", _er); None }
+        }; matcher
+    }
+
     pub fn get_account(&mut self, name: String) -> Option<Account> {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
