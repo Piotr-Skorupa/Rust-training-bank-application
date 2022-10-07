@@ -1,5 +1,5 @@
 use self::account::Account;
-use crate::database::Db;
+use crate::database::{Database, SQLiteDatabase};
 use rust_decimal::Decimal;
 
 pub mod account;
@@ -17,12 +17,12 @@ pub trait Bank {
 
 pub struct PioBank {
     active_account_: Option<Account>,
-    db_: Db
+    db_: Box<dyn Database>
 }
 
 impl Bank for PioBank {
     fn new() -> PioBank {
-        let mut self_ = PioBank { active_account_: None, db_: Db::new() };
+        let mut self_ = PioBank { active_account_: None, db_: Box::new(SQLiteDatabase::new()) };
         self_.db_.connect();
         return self_;
     }

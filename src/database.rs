@@ -6,15 +6,26 @@ use crate::bank::account::Account;
 
 const CREATE_TABLE_ACCOUNTS: &str = "CREATE TABLE IF NOT EXISTS accounts (name TEXT UNIQUE, saldo DECIMAL);";
 
-pub struct Db {
+pub trait Database {
+    fn connect(&mut self) -> bool;
+    fn create_account(&mut self, name: String) -> bool;
+    fn save_saldo(&mut self, name: String, saldo: Decimal) -> bool;
+    fn read_saldo(&mut self, name: String) -> Option<Decimal>;
+    fn get_account(&mut self, name: String) -> Option<Account>;
 }
 
-impl Db {
-    pub fn new() -> Db {
-        Db { }
-    }
 
-    pub fn connect(&mut self) -> bool {
+pub struct SQLiteDatabase {
+}
+
+impl SQLiteDatabase {
+    pub fn new() -> SQLiteDatabase {
+        SQLiteDatabase { }
+    }
+}
+
+impl Database for SQLiteDatabase {
+    fn connect(&mut self) -> bool {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
         match connection.execute(CREATE_TABLE_ACCOUNTS, ) {
@@ -23,7 +34,7 @@ impl Db {
         }
     }
 
-    pub fn create_account(&mut self, name: String) -> bool {
+    fn create_account(&mut self, name: String) -> bool {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
         let statement: String = 
@@ -37,7 +48,7 @@ impl Db {
         }
     }
 
-    pub fn save_saldo(&mut self, name: String, saldo: Decimal) -> bool {
+    fn save_saldo(&mut self, name: String, saldo: Decimal) -> bool {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
         let statement: String = 
@@ -50,7 +61,7 @@ impl Db {
         }
     }
 
-    pub fn read_saldo(&mut self, name: String) -> Option<Decimal> {
+    fn read_saldo(&mut self, name: String) -> Option<Decimal> {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
         let statement: String = "SELECT saldo FROM accounts".to_owned() + " WHERE name='" + &name + "';";
@@ -70,7 +81,7 @@ impl Db {
         }; matcher
     }
 
-    pub fn get_account(&mut self, name: String) -> Option<Account> {
+    fn get_account(&mut self, name: String) -> Option<Account> {
         let connection: sqlite::Connection = sqlite::open("data.sqlite").unwrap();
 
         let statement: String = "SELECT * FROM accounts".to_owned() + " WHERE name='" + &name + "';";
@@ -89,7 +100,5 @@ impl Db {
              },
             Err(_er) => { eprintln!("SQL error: {}", _er); None }
         }; matcher
-        
     }
-    
 }
